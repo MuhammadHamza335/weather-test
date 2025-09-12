@@ -1,0 +1,25 @@
+{
+  "weatherData": [
+    {
+      "city": "New York",
+      "temperature": 18,
+      "weather": "Cloudy",
+      "humidity": 65,
+      "windSpeed": 10
+    },
+    {
+      "city": "London",
+      "temperature": 12,
+      "weather": "Rainy",
+      "humidity": 80,
+      "windSpeed": 15
+    },
+    {
+      "city": "Dubai",
+      "temperature": 35,
+      "weather": "Sunny",
+      "humidity": 20,
+      "windSpeed": 5
+    }
+  ]
+}

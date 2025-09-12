@@ -1,126 +1,254 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  StyleSheet,
+  Dimensions,
+  StatusBar,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialIcons } from "@expo/vector-icons";
+import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
+import { useFocusEffect } from "@react-navigation/native";
+import { getFavorites, removeFavorite } from "@/utils/storage";
+import WeatherCard from "@/components/WeatherCard";
+import SettingsDrawer from "@/components/SettingsDrawer";
+import { useQuery } from "@tanstack/react-query";
+import { fetchWeatherByCity } from "@/services/weatherService";
 
-import { Collapsible } from "@/components/ui/collapsible";
-import { ExternalLink } from "@/components/external-link";
-import ParallaxScrollView from "@/components/parallax-scroll-view";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
-import { Fonts } from "@/constants/theme";
+export default function FavoritesScreen() {
+  const [favorites, setFavorites] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
-export default function TabTwoScreen() {
+  const load = useCallback(async () => {
+    const favs = await getFavorites();
+    setFavorites(favs);
+  }, []);
+
+  // Reload favorites when tab is focused (real-time updates)
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load])
+  );
+
+  const { data, refetch, isFetching } = useQuery({
+    queryKey: ["fav-weather", selected],
+    queryFn: () => fetchWeatherByCity(selected),
+    enabled: !!selected,
+  });
+
+  const onRemove = useCallback(
+    async (city) => {
+      await removeFavorite(city);
+      load();
+      if (selected === city) setSelected(null);
+    },
+    [load, selected]
+  );
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }
+    <LinearGradient
+      colors={["#667eea", "#764ba2", "#f093fb"]}
+      style={styles.wrapper}
     >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}
-        >
-          Explore
-        </ThemedText>
-      </ThemedView>
-      <ThemedText>
-        This app includes example code to help you get started.
-      </ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          and{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{" "}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the
-          web version, press <ThemedText type="defaultSemiBold">w</ThemedText>{" "}
-          in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the{" "}
-          <ThemedText type="defaultSemiBold">@2x</ThemedText> and{" "}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to
-          provide files for different screen densities
-        </ThemedText>
-        <Image
-          source={require("@/assets/images/react-logo.png")}
-          style={{ width: 100, height: 100, alignSelf: "center" }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{" "}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook
-          lets you inspect what the user's current color scheme is, and so you
-          can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{" "}
-          <ThemedText type="defaultSemiBold">
-            components/HelloWave.tsx
-          </ThemedText>{" "}
-          component uses the powerful{" "}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{" "}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The{" "}
-              <ThemedText type="defaultSemiBold">
-                components/ParallaxScrollView.tsx
-              </ThemedText>{" "}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      <StatusBar barStyle="light-content" />
+      <Animated.View entering={FadeInDown.delay(100)} style={styles.container}>
+        <Animated.View entering={FadeInUp.delay(200)} style={styles.header}>
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={() => setIsSettingsOpen(true)}
+          >
+            <MaterialIcons name="settings" size={24} color="white" />
+          </TouchableOpacity>
+          <View style={styles.headerContent}>
+            <Text style={styles.title}>Favorites</Text>
+            <Text style={styles.subtitle}>
+              {favorites.length} favorite{" "}
+              {favorites.length === 1 ? "city" : "cities"}
+            </Text>
+          </View>
+          <View style={styles.spacer} />
+        </Animated.View>
+
+        {favorites.length === 0 ? (
+          <Animated.View
+            entering={FadeInUp.delay(300)}
+            style={styles.emptyContainer}
+          >
+            <MaterialIcons
+              name="star-border"
+              size={64}
+              color="rgba(255, 255, 255, 0.5)"
+            />
+            <Text style={styles.emptyText}>No favorites yet</Text>
+            <Text style={styles.emptySubtext}>
+              Star cities from the home screen to see them here
+            </Text>
+          </Animated.View>
+        ) : (
+          <Animated.View
+            entering={FadeInUp.delay(300)}
+            style={styles.listContainer}
+          >
+            <FlatList
+              data={favorites}
+              keyExtractor={(item) => item}
+              showsVerticalScrollIndicator={false}
+              ItemSeparatorComponent={() => <View style={styles.separator} />}
+              renderItem={({ item, index }) => (
+                <Animated.View entering={FadeInUp.delay(100 * index)}>
+                  <TouchableOpacity
+                    style={[
+                      styles.favoriteItem,
+                      selected === item && styles.selectedItem,
+                    ]}
+                    onPress={() => setSelected(item)}
+                  >
+                    <View style={styles.favoriteItemContent}>
+                      <MaterialIcons name="star" size={20} color="#FFD700" />
+                      <Text style={styles.favoriteText}>{item}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.removeButton}
+                      onPress={() => onRemove(item)}
+                    >
+                      <MaterialIcons name="delete" size={20} color="#ef4444" />
+                    </TouchableOpacity>
+                  </TouchableOpacity>
+                </Animated.View>
+              )}
+            />
+          </Animated.View>
+        )}
+
+        {selected && data && (
+          <Animated.View
+            entering={FadeInUp.delay(400)}
+            style={styles.weatherContainer}
+          >
+            <WeatherCard data={data} showFavorite={false} />
+          </Animated.View>
+        )}
+      </Animated.View>
+
+      <SettingsDrawer
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
+    </LinearGradient>
   );
 }
 
+const { width, height } = Dimensions.get("window");
+
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
-    position: "absolute",
+  wrapper: {
+    flex: 1,
   },
-  titleContainer: {
+  container: {
+    flex: 1,
+    paddingHorizontal: Math.max(16, width * 0.04),
+    paddingTop: Math.max(50, height * 0.06),
+    paddingBottom: 100,
+  },
+  header: {
     flexDirection: "row",
-    gap: 8,
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: height > 700 ? 30 : 20,
+    paddingHorizontal: 4,
+  },
+  settingsButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
+  headerContent: {
+    flex: 1,
+    alignItems: "center",
+  },
+  spacer: {
+    width: 44,
+  },
+  title: {
+    fontSize: height > 700 ? 32 : 28,
+    fontWeight: "800",
+    color: "white",
+    textAlign: "center",
+    marginBottom: 6,
+    letterSpacing: 1,
+  },
+  subtitle: {
+    fontSize: height > 700 ? 15 : 13,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "center",
+    fontWeight: "500",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+  },
+  emptyText: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "white",
+    marginTop: 20,
+    textAlign: "center",
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.7)",
+    marginTop: 8,
+    textAlign: "center",
+    lineHeight: 20,
+  },
+  listContainer: {
+    flex: 1,
+  },
+  favoriteItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    paddingHorizontal: 16,
+    paddingVertical: height > 700 ? 12 : 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  selectedItem: {
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    borderColor: "rgba(255, 255, 255, 0.4)",
+  },
+  favoriteItemContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  favoriteText: {
+    fontSize: height > 700 ? 16 : 14,
+    fontWeight: "600",
+    color: "white",
+    marginLeft: 12,
+  },
+  removeButton: {
+    padding: 8,
+  },
+  separator: {
+    height: height > 700 ? 8 : 6,
+  },
+  weatherContainer: {
+    marginTop: 20,
   },
 });

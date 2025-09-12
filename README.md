@@ -13,7 +13,7 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 2. Start the app
 
    ```bash
-   npx expo start
+   npm run start
    ```
 
 In the output, you'll find options to open the app in a
@@ -24,6 +24,18 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Local Weather Data API (JSON Server)
+
+Run a local API that serves data from `data/weatherData.json`.
+
+```bash
+npm run serve:data
+```
+
+The API will be available at `http://localhost:3000`. Example endpoint:
+
+- `GET /weatherData?city=London`
 
 ## Get a fresh project
 
