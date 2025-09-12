@@ -111,7 +111,7 @@ export default function SettingsDrawer({ isOpen, onClose }) {
 
             <View style={styles.toggleContainer}>
               <TouchableOpacity style={styles.toggle} onPress={handleToggle}>
-                <Animated.View style={[styles.slider, animatedStyle]} />
+                <Animated.View style={[styles.sliderSmall, animatedStyle]} />
                 <Text style={[styles.unit, unit === "C" && styles.activeUnit]}>
                   °C
                 </Text>
@@ -267,6 +267,20 @@ const styles = StyleSheet.create({
     top: 3,
     left: 3,
     width: 60,
+    height: 44,
+    backgroundColor: "white",
+    borderRadius: 22,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  sliderSmall: {
+    position: "absolute",
+    top: 3,
+    left: 3,
+    width: 44,
     height: 44,
     backgroundColor: "white",
     borderRadius: 22,

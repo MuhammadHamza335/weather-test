@@ -1,6 +1,6 @@
 import { Tabs } from "expo-router";
 import React from "react";
-import { View } from "react-native";
+import { View, useColorScheme as useSystemColorScheme } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -11,6 +11,7 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const systemScheme = useSystemColorScheme();
   const insets = useSafeAreaInsets();
   const baseBarHeight = 60;
 
@@ -70,7 +71,7 @@ export default function TabLayout() {
                 right: 0,
                 bottom: 0,
                 height: insets.bottom,
-                backgroundColor: "#000",
+                backgroundColor: systemScheme === "dark" ? "#000" : "#fff",
               }}
             />
           </View>
