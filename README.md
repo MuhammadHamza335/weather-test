@@ -1,62 +1,132 @@
-# Welcome to your Expo app 👋
+## Weather App – Implementation Guide
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This React Native app (Expo + Expo Router) implements a responsive weather experience with local JSON data, offline caching, favorites, temperature unit toggle, and time-based light/dark theming.
 
-## Get started
+### Quick start
 
-1. Install dependencies
+- **Install**
+  ```bash
+  npm install
+  ```
+- **Start app**
+  ```bash
+  npm run start
+  ```
+- **Run local JSON API** (JSON Server)
+  ```bash
+  npm run serve:data
+  ```
+  Uses `data/weatherData.json` at `http://localhost:3000` (example: `GET /weatherData?city=London`).
 
-   ```bash
-   npm install
-   ```
+### Project structure (high-level)
 
-2. Start the app
+- Screens: `app/(tabs)/index.jsx`, `app/(tabs)/explore.jsx`
+- Core UI: `components/WeatherDisplay.jsx`, `components/WeatherCard.jsx`, `components/RecentSearchList.jsx`, `components/SettingsDrawer.jsx`
+- State: `context/TemperatureContext.js`, `context/ThemeContext.js`
+- Data/API: `data/weatherData.json`, `services/weatherService.js`, `utils/storage.js`
+- Navigation: `app/(tabs)/_layout.jsx`, `app/_layout.jsx`
 
-   ```bash
-   npm run start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## How each requirement is implemented
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 1) City Search & Weather Display
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Local JSON via JSON Server**: `data/weatherData.json`
+- **Fetch layer** (simulates API): `services/weatherService.js`
+- **Search UI & actions**: `app/(tabs)/index.jsx`
+- **Display with loading/error/offline states**: `components/WeatherDisplay.jsx`
+- **Weather card styles/icons by condition**: `components/WeatherCard.jsx`
 
-## Local Weather Data API (JSON Server)
+What happens
 
-Run a local API that serves data from `data/weatherData.json`.
+- User searches a city in `index.jsx` → calls `fetchWeatherByCity` → shows result in `WeatherDisplay.jsx`.
+- JSON Server serves the JSON file for search queries.
 
-```bash
-npm run serve:data
-```
+### 2) Faster Recent Searches (Persistent)
 
-The API will be available at `http://localhost:3000`. Example endpoint:
+- **Persistence**: `utils/storage.js` (`getRecentSearches`, `addRecentSearch`)
+- **Rendering**: `components/RecentSearchList.jsx` (optimized list + subtle animations)
+- **Usage**: wired in `app/(tabs)/index.jsx` (initial load, tap to re-fill search & fetch)
 
-- `GET /weatherData?city=London`
+### 3) Temperature Unit Toggle (°C/°F)
 
-## Get a fresh project
+- **Global state**: `context/TemperatureContext.js` (unit + converter)
+- **UI control**: `components/SettingsDrawer.jsx` (animated segmented toggle)
+- **Conversion**: `components/WeatherCard.jsx` calls `convertTemperature`
 
-When you're ready, run:
+### 4) Favorite Cities
 
-```bash
-npm run reset-project
-```
+- **Persistence**: `utils/storage.js` (`getFavorites`, `addFavorite`, `removeFavorite`)
+- **Mark as favorite**: `components/FavoriteButton.jsx`
+- **Favorites screen**: `app/(tabs)/explore.jsx` (lists, select for details, remove)
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 5) UI Enhancements (weather-based styles)
 
-## Learn more
+- **Dynamic themes by condition** (Sunny/Cloudy/Rainy…): `components/WeatherCard.jsx`
+- **Modern UI details**: gradients, rounded cards, shadows across components
 
-To learn more about developing your project with Expo, look at the following resources:
+### 6) Offline Mode & Caching
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Cache last successful result**: `utils/storage.js` (`getLastSearch`, `setLastSearch`)
+- **Network awareness**: `components/WeatherDisplay.jsx` (NetInfo + fallbacks)
+- **Data fetching**: React Query (`@tanstack/react-query`) in `WeatherDisplay.jsx`
 
-## Join the community
+### 7) Current Location (Recommended)
 
-Join our community of developers creating universal apps.
+- **Location permission + reverse geocode**: `app/(tabs)/index.jsx` (via `expo-location`)
+- If a valid city is detected, it’s searched and stored in recents.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 8) Bonus – what’s covered
+
+- **Animations**: `react-native-reanimated` used in `SettingsDrawer.jsx`, `RecentSearchList.jsx`, `WeatherCard.jsx`, and screen sections in `index.jsx` / `explore.jsx`.
+- Pull-to-refresh / background sync: not implemented.
+
+---
+
+## Theming & Responsiveness
+
+- **Light/Dark mode (time-based initial default)**: `context/ThemeContext.js` (persisted; toggle in `SettingsDrawer.jsx`)
+- **Responsive sizing**: `Dimensions`-aware styles in `components/WeatherCard.jsx`, `components/RecentSearchList.jsx`, and screen paddings in `app/(tabs)/index.jsx` and `app/(tabs)/explore.jsx`.
+
+---
+
+## Commands
+
+- **Start app**
+  ```bash
+  npm run start
+  ```
+- **Run local JSON API**
+  ```bash
+  npm run serve:data
+  ```
+
+---
+
+## Demo video
+
+<!-- HTML video embeds are supported by most Markdown renderers (including GitHub). -->
+<div align="center">
+  <iframe
+    src="https://drive.google.com/file/d/1aB8izadDCKPnu8JgrnTLc8zDANaoyQvX/preview"
+    width="720"
+    height="405"
+    allow="autoplay"
+    allowfullscreen
+    style="border:0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.2);"
+  ></iframe>
+  <br/>
+  <sub>If the embed doesn’t load, open the video directly: 
+  <a href="https://drive.google.com/file/d/1aB8izadDCKPnu8JgrnTLc8zDANaoyQvX/view?usp=sharing">View on Google Drive</a></sub>
+</div>
+
+---
+
+## Screenshots
+
+Below are a few screens from the app (more can be added as needed):
+
+| Home                                       | Search                                       | Favorites                                       | Settings                                       |
+| ------------------------------------------ | -------------------------------------------- | ----------------------------------------------- | ---------------------------------------------- |
+| ![Home](./assets/app_screenshots/app1.jpg) | ![Search](./assets/app_screenshots/app2.jpg) | ![Favorites](./assets/app_screenshots/app3.jpg) | ![Settings](./assets/app_screenshots/app4.jpg) |
