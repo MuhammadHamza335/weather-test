@@ -106,20 +106,9 @@ What happens
 
 ## Demo video
 
-<!-- HTML video embeds are supported by most Markdown renderers (including GitHub). -->
-<div align="center">
-  <iframe
-    src="https://drive.google.com/file/d/1aB8izadDCKPnu8JgrnTLc8zDANaoyQvX/preview"
-    width="720"
-    height="405"
-    allow="autoplay"
-    allowfullscreen
-    style="border:0; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.2);"
-  ></iframe>
-  <br/>
-  <sub>If the embed doesn’t load, open the video directly: 
-  <a href="https://drive.google.com/file/d/1aB8izadDCKPnu8JgrnTLc8zDANaoyQvX/view?usp=sharing">View on Google Drive</a></sub>
-</div>
+Add your demo link here:
+
+`https://drive.google.com/file/d/1aB8izadDCKPnu8JgrnTLc8zDANaoyQvX/view?usp=sharing`
 
 ---
 
