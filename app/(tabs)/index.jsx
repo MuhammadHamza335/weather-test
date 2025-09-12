@@ -21,8 +21,12 @@ import WeatherDisplay from "@/components/WeatherDisplay";
 import RecentSearchList from "@/components/RecentSearchList";
 import SettingsDrawer from "@/components/SettingsDrawer";
 import { addRecentSearch, getRecentSearches } from "@/utils/storage";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
+  const { resolvedTheme } = useTheme();
   const [query, setQuery] = useState("");
   const [city, setCity] = useState("");
   const [recent, setRecent] = useState([]);
@@ -96,11 +100,20 @@ export default function HomeScreen() {
 
   return (
     <LinearGradient
-      colors={["#667eea", "#764ba2", "#f093fb"]}
+      colors={
+        resolvedTheme === "dark"
+          ? ["#1f2937", "#111827", "#0b1020"]
+          : ["#667eea", "#764ba2", "#f093fb"]
+      }
       style={styles.wrapper}
     >
-      <StatusBar barStyle="light-content" />
-      <Animated.View entering={FadeInDown.delay(100)} style={styles.container}>
+      <StatusBar
+        barStyle={resolvedTheme === "dark" ? "light-content" : "dark-content"}
+      />
+      <Animated.View
+        entering={FadeInDown.delay(100)}
+        style={[styles.container, { paddingBottom: 70 + insets.bottom }]}
+      >
         <Animated.View entering={FadeInUp.delay(200)} style={styles.header}>
           <TouchableOpacity
             style={styles.settingsButton}
@@ -178,7 +191,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Math.max(16, width * 0.04),
     paddingTop: Math.max(50, height * 0.06),
-    paddingBottom: 100, // Space for bottom navigation
+    paddingBottom: 70 + (Dimensions.get("window").height > 700 ? 20 : 10),
     justifyContent: "space-between",
   },
   header: {

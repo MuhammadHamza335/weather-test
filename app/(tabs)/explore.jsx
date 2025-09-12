@@ -17,8 +17,12 @@ import WeatherCard from "@/components/WeatherCard";
 import SettingsDrawer from "@/components/SettingsDrawer";
 import { useQuery } from "@tanstack/react-query";
 import { fetchWeatherByCity } from "@/services/weatherService";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function FavoritesScreen() {
+  const insets = useSafeAreaInsets();
+  const { resolvedTheme } = useTheme();
   const [favorites, setFavorites] = useState([]);
   const [selected, setSelected] = useState(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -52,11 +56,20 @@ export default function FavoritesScreen() {
 
   return (
     <LinearGradient
-      colors={["#667eea", "#764ba2", "#f093fb"]}
+      colors={
+        resolvedTheme === "dark"
+          ? ["#1f2937", "#111827", "#0b1020"]
+          : ["#667eea", "#764ba2", "#f093fb"]
+      }
       style={styles.wrapper}
     >
-      <StatusBar barStyle="light-content" />
-      <Animated.View entering={FadeInDown.delay(100)} style={styles.container}>
+      <StatusBar
+        barStyle={resolvedTheme === "dark" ? "light-content" : "dark-content"}
+      />
+      <Animated.View
+        entering={FadeInDown.delay(100)}
+        style={[styles.container, { paddingBottom: 70 + insets.bottom }]}
+      >
         <Animated.View entering={FadeInUp.delay(200)} style={styles.header}>
           <TouchableOpacity
             style={styles.settingsButton}

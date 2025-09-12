@@ -9,28 +9,39 @@ import { TemperatureProvider } from "@/context/TemperatureContext";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
 
-import { useColorScheme } from "@/hooks/use-color-scheme";
+import {
+  ThemeProvider as AppThemeProvider,
+  useTheme,
+} from "@/context/ThemeContext";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export const unstable_settings = {
   anchor: "(tabs)",
 };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const queryClient = new QueryClient();
+function RootLayoutInner() {
+  const { resolvedTheme } = useTheme();
+  return (
+    <ThemeProvider value={resolvedTheme === "dark" ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style={resolvedTheme === "dark" ? "light" : "dark"} />
+    </ThemeProvider>
+  );
+}
 
+export default function RootLayout() {
+  const queryClient = new QueryClient();
   return (
     <QueryClientProvider client={queryClient}>
-      <TemperatureProvider>
-        <ThemeProvider
-          value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
-        >
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          </Stack>
-          <StatusBar style="auto" />
-        </ThemeProvider>
-      </TemperatureProvider>
+      <SafeAreaProvider>
+        <AppThemeProvider>
+          <TemperatureProvider>
+            <RootLayoutInner />
+          </TemperatureProvider>
+        </AppThemeProvider>
+      </SafeAreaProvider>
     </QueryClientProvider>
   );
 }

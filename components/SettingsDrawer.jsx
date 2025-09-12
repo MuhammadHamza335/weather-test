@@ -16,20 +16,33 @@ import Animated, {
 } from "react-native-reanimated";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useTemperature } from "@/context/TemperatureContext";
+import { useTheme } from "@/context/ThemeContext";
 
 const { width, height } = Dimensions.get("window");
 
 export default function SettingsDrawer({ isOpen, onClose }) {
   const { unit, toggleUnit } = useTemperature();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const slideValue = useSharedValue(unit === "F" ? 1 : 0);
+  const themeIndex = useSharedValue(theme === "dark" ? 1 : 0);
 
   React.useEffect(() => {
     slideValue.value = withSpring(unit === "F" ? 1 : 0);
   }, [unit, slideValue]);
 
+  React.useEffect(() => {
+    themeIndex.value = withSpring(theme === "dark" ? 1 : 0);
+  }, [theme, themeIndex]);
+
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{ translateX: slideValue.value * 44 }],
+    };
+  });
+
+  const themeSliderStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateX: themeIndex.value * 68 }],
     };
   });
 
@@ -58,6 +71,10 @@ export default function SettingsDrawer({ isOpen, onClose }) {
     toggleUnit();
   };
 
+  const handleSelectTheme = (value) => {
+    setTheme(value);
+  };
+
   return (
     <>
       <Animated.View style={[styles.overlay, overlayStyle]}>
@@ -67,7 +84,11 @@ export default function SettingsDrawer({ isOpen, onClose }) {
       <Animated.View style={[styles.drawer, drawerStyle]}>
         <StatusBar barStyle="light-content" />
         <LinearGradient
-          colors={["#667eea", "#764ba2"]}
+          colors={
+            resolvedTheme === "dark"
+              ? ["#312e81", "#6d28d9"]
+              : ["#667eea", "#764ba2"]
+          }
           style={styles.drawerContent}
         >
           <View style={styles.header}>
@@ -98,6 +119,42 @@ export default function SettingsDrawer({ isOpen, onClose }) {
                   °F
                 </Text>
               </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.settingItem}>
+            <View style={styles.settingInfo}>
+              <MaterialIcons name="dark-mode" size={24} color="white" />
+              <View style={styles.settingTextContainer}>
+                <Text style={styles.settingTitle}>Appearance</Text>
+                <Text style={styles.settingDescription}>Light or Dark</Text>
+              </View>
+            </View>
+
+            <View style={styles.toggleContainer}>
+              <View style={styles.themeToggle}>
+                <Animated.View style={[styles.slider, themeSliderStyle]} />
+                <TouchableOpacity onPress={() => handleSelectTheme("light")}>
+                  <Text
+                    style={[
+                      styles.themeUnit,
+                      theme === "light" && styles.activeUnit,
+                    ]}
+                  >
+                    Light
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleSelectTheme("dark")}>
+                  <Text
+                    style={[
+                      styles.themeUnit,
+                      theme === "dark" && styles.activeUnit,
+                    ]}
+                  >
+                    Dark
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
 
@@ -196,11 +253,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.3)",
   },
+  themeToggle: {
+    flexDirection: "row",
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    borderRadius: 25,
+    padding: 3,
+    position: "relative",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+  },
   slider: {
     position: "absolute",
     top: 3,
     left: 3,
-    width: 44,
+    width: 60,
     height: 44,
     backgroundColor: "white",
     borderRadius: 22,
@@ -209,6 +275,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+  },
+  themeUnit: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.7)",
+    paddingHorizontal: 4,
+    paddingVertical: 15,
+    width: 68,
+    height: 44,
+    textAlign: "center",
+    lineHeight: 14,
   },
   unit: {
     fontSize: 14,
