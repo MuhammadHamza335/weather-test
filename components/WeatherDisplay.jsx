@@ -55,37 +55,38 @@ export default function WeatherDisplay({ city }) {
 
   if (isError) {
     return (
-      <View
-        style={{
-          backgroundColor: "#fee2e2",
-          borderColor: "#fca5a5",
-          borderWidth: 1,
-          borderRadius: 8,
-          padding: 16,
-          margin: 8,
-          alignItems: "center",
-        }}
-      >
-        <Text
+      <View style={{ marginTop: 12 }}>
+        <View
           style={{
-            color: "#dc2626",
-            fontSize: 16,
-            fontWeight: "600",
-            textAlign: "center",
+            backgroundColor: "#fee2e2",
+            borderColor: "#fca5a5",
+            borderWidth: 1,
+            borderRadius: 8,
+            padding: 16,
+            alignItems: "center",
           }}
         >
-          No data found
-        </Text>
-        <Text
-          style={{
-            color: "#7f1d1d",
-            fontSize: 14,
-            marginTop: 4,
-            textAlign: "center",
-          }}
-        >
-          The city "{city}" is not available in our database.
-        </Text>
+          <Text
+            style={{
+              color: "#dc2626",
+              fontSize: 16,
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
+            No data found
+          </Text>
+          <Text
+            style={{
+              color: "#7f1d1d",
+              fontSize: 14,
+              marginTop: 4,
+              textAlign: "center",
+            }}
+          >
+            The city "{city}" is not available in our database.
+          </Text>
+        </View>
       </View>
     );
   }
@@ -97,33 +98,34 @@ export default function WeatherDisplay({ city }) {
 
   if (!shown) {
     return (
-      <View
-        style={{
-          backgroundColor: "#fee2e2",
-          borderColor: "#fca5a5",
-          borderWidth: 1,
-          borderRadius: 8,
-          padding: 16,
-          margin: 8,
-          alignItems: "center",
-        }}
-      >
-        <Text
+      <View style={{ marginTop: 12 }}>
+        <View
           style={{
-            color: "#dc2626",
-            fontSize: 16,
-            fontWeight: "600",
-            textAlign: "center",
+            backgroundColor: "#fee2e2",
+            borderColor: "#fca5a5",
+            borderWidth: 1,
+            borderRadius: 8,
+            padding: 16,
+            alignItems: "center",
           }}
         >
-          No data found
-        </Text>
+          <Text
+            style={{
+              color: "#dc2626",
+              fontSize: 16,
+              fontWeight: "600",
+              textAlign: "center",
+            }}
+          >
+            No data found
+          </Text>
+        </View>
       </View>
     );
   }
 
   return (
-    <View>
+    <View style={{ marginTop: 12 }}>
       <WeatherCard data={shown} />
       {isOffline ? (
         <View style={{ paddingVertical: 8 }}>

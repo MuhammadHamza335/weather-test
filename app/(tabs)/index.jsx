@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Math.max(16, width * 0.04),
     paddingTop: Math.max(50, height * 0.06),
     paddingBottom: 70 + (Dimensions.get("window").height > 700 ? 20 : 10),
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   header: {
     flexDirection: "row",
